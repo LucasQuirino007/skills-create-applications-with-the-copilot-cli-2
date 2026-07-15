@@ -3,6 +3,9 @@ const {
   subtraction,
   multiplication,
   division,
+  modulo,
+  power,
+  squareRoot,
   normalizeOperation,
   calculate,
   runCli,
@@ -52,6 +55,42 @@ describe("calculator operations", () => {
       expect(() => division(10, 0)).toThrow("Erro: divisão por zero não é permitida.");
     });
   });
+
+  describe("modulo", () => {
+    test("returns division remainder", () => {
+      expect(modulo(10, 3)).toBe(1);
+    });
+
+    test("matches extended example 5 % 2", () => {
+      expect(modulo(5, 2)).toBe(1);
+    });
+
+    test("throws on modulo by zero", () => {
+      expect(() => modulo(10, 0)).toThrow("Erro: modulo por zero não é permitido.");
+    });
+  });
+
+  describe("power", () => {
+    test("calculates exponentiation", () => {
+      expect(power(2, 3)).toBe(8);
+    });
+  });
+
+  describe("squareRoot", () => {
+    test("calculates square root", () => {
+      expect(squareRoot(25)).toBe(5);
+    });
+
+    test("matches extended example sqrt(16)", () => {
+      expect(squareRoot(16)).toBe(4);
+    });
+
+    test("throws for negative numbers", () => {
+      expect(() => squareRoot(-9)).toThrow(
+        "Erro: não é possível calcular raiz quadrada de número negativo.",
+      );
+    });
+  });
 });
 
 describe("operation normalization and calculate", () => {
@@ -60,11 +99,14 @@ describe("operation normalization and calculate", () => {
     expect(normalizeOperation("subtract")).toBe("subtraction");
     expect(normalizeOperation("x")).toBe("multiplication");
     expect(normalizeOperation("/")).toBe("division");
+    expect(normalizeOperation("%")).toBe("modulo");
+    expect(normalizeOperation("pow")).toBe("power");
+    expect(normalizeOperation("sqrt")).toBe("squareRoot");
   });
 
   test("throws for unsupported operation", () => {
-    expect(() => normalizeOperation("%")).toThrow(
-      "Erro: operação inválida. Use +, -, *, / ou nomes equivalentes.",
+    expect(() => normalizeOperation("unknown")).toThrow(
+      "Erro: operação inválida. Use +, -, *, /, %, ^ ou sqrt.",
     );
   });
 
@@ -73,6 +115,9 @@ describe("operation normalization and calculate", () => {
     expect(calculate(5, "-", 2)).toBe(3);
     expect(calculate(5, "multiply", 2)).toBe(10);
     expect(calculate(20, "division", 5)).toBe(4);
+    expect(calculate(10, "%", 3)).toBe(1);
+    expect(calculate(2, "^", 4)).toBe(16);
+    expect(calculate(25, "sqrt", 0)).toBe(5);
   });
 });
 
@@ -85,9 +130,19 @@ describe("CLI behavior", () => {
   });
 
   test("throws when arguments count is invalid", () => {
-    expect(() => runCli(["2", "+"])).toThrow(
+    expect(() => runCli(["2", "x"])).toThrow(
       "Uso: node src/calculator.js <numero1> <operacao> <numero2>",
     );
+  });
+
+  test("executes square root in CLI with unary format", () => {
+    expect(runCli(["sqrt", "81"])).toBe(9);
+  });
+
+  test("executes extended operation examples from image", () => {
+    expect(runCli(["5", "%", "2"])).toBe(1);
+    expect(runCli(["2", "^", "3"])).toBe(8);
+    expect(runCli(["sqrt", "16"])).toBe(4);
   });
 
   test("throws when operands are invalid", () => {
